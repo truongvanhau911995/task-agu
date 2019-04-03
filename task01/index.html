@@ -1,0 +1,106 @@
+<!doctype html>
+<html ng-app="todoApp">
+
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+	<script src="js/myjs.js"></script>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+	<style>
+		@media (min-width: 768px){
+			.modal-dialog {
+				width: 900px;
+				margin: 30px auto;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	
+	<div ng-controller="TodoListController" class="jumbotron container-fluid">
+		<hr>
+		<h2>HIGHCHART</h2>
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">URL</label>
+				<div class="col-sm-6">
+					<input ng-model="obData.URL" class="form-control" id="focusedInput" type="text" placeholder="url ...">
+				</div>
+				<button class="col-sm-2 btn btn-default" ng-click="getProperty()">get data</button>
+			</div>
+			<div class="form-group">
+				<label for="disabledSelect" class="col-sm-2 control-label">catalog</label>
+				<div class="col-sm-6">
+					<select class="form-control">
+						<option>-- select catalog --</option>
+						<option ng-repeat="(key,val) in obData.dataURL[1]" value="{{key}}" ng-if="key =='saleName' ||key =='saleDate' ">{{key}}</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="disabledInput" class="col-sm-2 control-label">xColumn</label>
+				<div class="col-sm-6">
+					<input class="form-control" type="number" ng-model="obData.xColumn" min="0">
+				</div>
+			</div>
+			
+			<div class="form-group" ng-repeat="n in onCountChange(obData.xColumn)" >
+				<label for="disabledSelect" class="col-sm-2 control-label">xColumn {{n}}</label>
+				<div class="col-sm-6" >
+					<select class="form-control" >
+						<option>-- select column --</option>
+						<option ng-repeat="(key,val) in obData.dataURL[1]" value="{{key}}" ng-if="key !='saleName' && key !='saleDate' && key != 'index' ">{{key}}</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="disabledInput" class="col-sm-2 control-label">xLine</label>
+				<div class="col-sm-6">
+					<input class="form-control" type="number" ng-model="obData.xline">
+				</div>
+			</div>
+			<div class="form-group" ng-repeat="n in onCountChange(obData.xline)" >
+				<label for="disabledSelect" class="col-sm-2 control-label">xLine {{n}}</label>
+				<div class="col-sm-6" >
+					<select class="form-control" >
+						<option>-- select line --</option>
+						<option ng-repeat="(key,val) in obData.dataURL[1]" value="{{key}}" ng-if="key !='saleName' && key !='saleDate' && key != 'index' ">{{key}}</option>
+					</select>
+				</div>
+			</div>
+		</form>
+		<hr>
+		<!-- Trigger the modal with a button -->
+		<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" ng-click="showChart()">Prevew</button>
+
+		<!-- Modal -->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modal Header</h4>
+					</div>
+					<div class="modal-body">
+						<p id="container"></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<script src="https://code.highcharts.com/modules/export-data.js"></script>
+</body>
+
+</html>
