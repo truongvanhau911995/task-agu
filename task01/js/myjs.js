@@ -4,13 +4,18 @@ angular.module('todoApp', [])
     $scope.obData = {
       URL: 'http://127.0.0.1:5500/js/data.json',
       dataURL: [],
-      xColumn: 0,
-      xline: 0
+      yColumn: 0,
+      yLine: 0,
+      Cols:[],
+      xCatalog:'',
+      Lines:[],
+      listDateFromTo:[],
+      dataAfterGroupDate:[]
     };
 
     $scope.makCatalog = {
-      xCatalogName:[],
-      xCatalogDate:[]
+      xCatalogName: [],
+      xCatalogDate: []
     };
     $scope.method = 'GET';
 
@@ -27,6 +32,8 @@ angular.module('todoApp', [])
     };
 
     $scope.showChart = () => {
+     
+      $scope.fillProperty($scope.obData.xCatalog);
       Highcharts.chart('container', {
         chart: {
           zoomType: 'xy'
@@ -106,7 +113,7 @@ angular.module('todoApp', [])
           name: 'Rainfall',
           type: 'column',
           yAxis: 1,
-          data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           tooltip: {
             valueSuffix: ' mm'
           }
@@ -115,7 +122,7 @@ angular.module('todoApp', [])
           name: 'Rainfall',
           type: 'column',
           yAxis: 1,
-          data: [42.9, 30, 44, 129.2, 144.0, 18.0, 55.6, 67.5, 123.4, 46.1, 95.6, 66.4],
+          data: [0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           tooltip: {
             valueSuffix: ' mm'
           }
@@ -124,7 +131,7 @@ angular.module('todoApp', [])
           name: 'Rainfall',
           type: 'column',
           yAxis: 1,
-          data: [20.9, 55.5, 39.4, 77.2, 100.0, 88.0, 111.6, 48.5, 123.4, 132.1, 56.6, 70.4],
+          data: [0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           tooltip: {
             valueSuffix: ' mm'
           }
@@ -167,15 +174,164 @@ angular.module('todoApp', [])
           }]
         }
       });
-    }
-    $scope.onCountChange = function (max) {
-      var input = [];
-      for (var i = 1; i <= max; i++) input.push(i);
-      return input;
     };
-    
-    // Group saleDate
-    $scope.groupSaleDate = () =>{
+
+    // add ycolumns
+    $scope.$watch('obData.yColumn', function (data) {
+      $scope.obData.Cols = [];
+      for (var i = 0; i < data; i++){
+        $scope.obData.Cols.push({index:'column' + i, val: "saleAmount1",type:'column'});
+      } 
+    });
+
+    $scope.$watch('obData.yLine', function (data) {
+      $scope.obData.Lines = [];
+      for (var i = 0; i < data; i++) {
+        $scope.obData.Lines.push({index:'line' + i, val: "saleAmount1",type:'line'});
+      }
+    });
+
+    // group by type
+    $scope.groupCatalog = (type)=>{
+      var xCatalog = [];
+      var objectData = {};
+      angular.forEach($scope.obData.dataURL, function(data) {
+         var da;
+         var temp;
+         if(type == 'saleDate'){
+            da = data.saleDate.slice(0,7);
+         }
+         if(type == 'saleName'){
+            da = data.saleName;
+         }
+         if(!objectData[da]){
+              objectData[da] = {namegroup:da,saleAmount1:0,saleAmount2:0,saleAmount3:0,saleAmount4:0,saleAmount5:0,saleCost1:0,saleCost2:0,saleCost3:0,saleCost4:0,saleCost5:0};
+              xCatalog.push(objectData[da]);
+          }
+
+          objectData[da].saleAmount1 += Math.round(data.saleAmount1);
+          objectData[da].saleAmount2 += Math.round(data.saleAmount2);
+          objectData[da].saleAmount3 += Math.round(data.saleAmount3);
+          objectData[da].saleAmount4 += Math.round(data.saleAmount4);
+          objectData[da].saleAmount5 += Math.round(data.saleAmount5);
+          objectData[da].saleCost1 += Math.round(data.saleCost1);
+          objectData[da].saleCost2 += Math.round(data.saleCost2);
+          objectData[da].saleCost3 += Math.round(data.saleCost3);
+          objectData[da].saleCost4 += Math.round(data.saleCost4);
+          objectData[da].saleCost5 += Math.round(data.saleCost5);
+      });
+      return xCatalog;
+    };
+
+    $scope.initData = () =>{}
+    // fill Property
+    $scope.fillProperty = (xCatalog) => {
+      switch(xCatalog){
+        case 'saleName':
+          $scope.makCatalog.xCatalogName =_.sortBy($scope.groupCatalog('saleName'),'namegroup');
+          console.log($scope.makCatalog.xCatalogName);
+          break;
+        case 'saleDate':
+          var dataGroupByDate = [], obj = {};
+          $scope.makCatalog.xCatalogDate = _.sortBy($scope.groupCatalog('saleDate'),'namegroup');// save list group by saleDate
+          $scope.obData.listDateFromTo = $scope.getDate($scope.makCatalog.xCatalogDate[0].namegroup,$scope.makCatalog.xCatalogDate[$scope.makCatalog.xCatalogDate.length-1].namegroup);
+          // save 
+          angular.forEach($scope.obData.listDateFromTo,function(data){
+               obj[data.yearmonth] = {namegroup:data.yearmonth,saleAmount1:0,saleAmount2:0,saleAmount3:0,saleAmount4:0,saleAmount5:0,saleCost1:0,saleCost2:0,saleCost3:0,saleCost4:0,saleCost5:0};
+               $scope.obData.dataAfterGroupDate.push(obj[data.yearmonth]);
+          });
+          console.log($scope.obData.dataAfterGroupDate);
+          // Group array 
+          for (var i = 0; i < $scope.obData.dataAfterGroupDate.length; i++) {
+              for (var j = 0; j < $scope.makCatalog.xCatalogDate.length; j++) {
+                  if ($scope.obData.dataAfterGroupDate[i].namegroup == $scope.makCatalog.xCatalogDate[j].namegroup) {
+                    $scope.obData.dataAfterGroupDate[i].saleAmount1 = $scope.makCatalog.xCatalogDate[j].saleAmount1;
+                    $scope.obData.dataAfterGroupDate[i].saleAmount2 = $scope.makCatalog.xCatalogDate[j].saleAmount2;
+                    $scope.obData.dataAfterGroupDate[i].saleAmount3 = $scope.makCatalog.xCatalogDate[j].saleAmount3;
+                    $scope.obData.dataAfterGroupDate[i].saleAmount4 = $scope.makCatalog.xCatalogDate[j].saleAmount4;
+                    $scope.obData.dataAfterGroupDate[i].saleAmount5 = $scope.makCatalog.xCatalogDate[j].saleAmount5;
+                    $scope.obData.dataAfterGroupDate[i].saleCost1   = $scope.makCatalog.xCatalogDate[j].saleCost1;
+                    $scope.obData.dataAfterGroupDate[i].saleCost2   = $scope.makCatalog.xCatalogDate[j].saleCost2;
+                    $scope.obData.dataAfterGroupDate[i].saleCost3   = $scope.makCatalog.xCatalogDate[j].saleCost3;
+                    $scope.obData.dataAfterGroupDate[i].saleCost4   = $scope.makCatalog.xCatalogDate[j].saleCost4;
+                    $scope.obData.dataAfterGroupDate[i].saleCost5   = $scope.makCatalog.xCatalogDate[j].saleCost5;
+                   }
+              }
+          }
+         // console.log($scope.obData.dataAfterGroupDate);
+          break;
+        default:
+      }
+    };
+
+
+    // get month
+    $scope.getMonth = (value) => {
+      let index = 0;
+      value = value.split(""); // tách string thành mảng ký tự
+      value.forEach((element, key) => { // duyệt qua mảng và lấy giá trị index của "/"
+        if (element === "/") {
+          index = key + 1;
+        }
+      });
+      value = value.join(""); // kết hợp mảng ký tự lại thánh tring
+      return value.slice(index); // trả ra mảng mới bắt đầu từ giá trị index + 1 => sau dấu "/"
+    }
+
+    //get year
+    $scope.getYear = (value) => {
+      let index = 0;
+      value = value.split(""); // tách string thành mảng ký tự
+      value.forEach((element, key) => { // duyệt qua mảng và lấy giá trị index của "/"
+        if (element === "/") {
+          index = key;
+        }
+      });
+      value = value.join(""); // kết hợp mảng ký tự lại thánh string
+      return value.slice(0, index); // trả ra mảng mới bắt đầu từ 0 -> index => trước dấu "/"     
+    }
+
+    // get date min and max
+    $scope.getDate = (dateOne, dateTwo) => {
+      var result=[]; //init
+      var monthString = {1:'Jan',2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul',8:'Aug', 9:'Sept', 10:'Oct', 11:'Nov',12:'Dec'};
+      var monthnum = {1:'01',2:'02', 3:'03', 4:'04', 5:'05', 6:'06', 7:'07',8:'08', 9:'09', 10:'10', 11:'11',12:'12'};
+      let len = Math.abs($scope.getYear(dateOne) - $scope.getYear(dateTwo)) * 12;
+
+      if ($scope.getYear(dateOne) < $scope.getYear(dateTwo)) {
+        let size = (len - parseInt($scope.getMonth(dateOne))) + parseInt($scope.getMonth(dateTwo));  
+        for (let index = 1, month = parseInt($scope.getMonth(dateOne)), i = 0; index <= size + 1; index++ , month++) {
+          if (month > 12) {
+            month = 1;
+            i++;
+          }
+          result.push({"year": parseInt($scope.getYear(dateOne)) + i,"month": month,"nummonth":monthnum[month],"monstring":monthString[month],"yearmonth":$scope.getYear(dateOne)+"/"+monthnum[month]}
+          );
+        }
+      }
+      else if ($scope.getYear(dateOne) > $scope.getYear(dateTwo)) {
+        let size = (len - parseInt($scope.getMonth(dateTwo))) + parseInt($scope.getMonth(dateOne));
+        for (let index = 1, month = parseInt($scope.getMonth(dateTwo)), i = 0; index <= size + 1; index++ , month++) {
+          if (month > 12) {
+            month = 1;
+            i++;
+          }
+          result.push({"year": parseInt($scope.getYear(dateTwo)) + i,"month": month,"nummonth":monthnum[month],"monstring":monthString[month],"yearmonth":$scope.getYear(dateOne)+"/"+monthnum[month]});
+        }
+      }
+      else { // trường hợp năm = nhau
+        if ($scope.getMonth(dateOne) < $scope.getMonth(dateTwo)) {
+          for (let index = 1; index <= $scope.getMonth(dateTwo) - $scope.getMonth(dateOne) + 1; index++) {
+            result.push({"year": parseInt($scope.getYear(dateOne)),"month": index,"nummonth":monthnum[index],"monstring":monthString[index],"yearmonth":parseInt($scope.getYear(dateOne))+"/"+monthnum[index]});
+          }
+        }
+      }
+      return result;
+    }
+
+    // get Data
+    $scope.getData = () =>{
       
     }
+
   }]);

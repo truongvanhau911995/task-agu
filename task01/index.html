@@ -34,38 +34,40 @@
 			<div class="form-group">
 				<label for="disabledSelect" class="col-sm-2 control-label">catalog</label>
 				<div class="col-sm-6">
-					<select class="form-control">
+					<select class="form-control" ng-model="obData.xCatalog">
 						<option>-- select catalog --</option>
 						<option ng-repeat="(key,val) in obData.dataURL[1]" value="{{key}}" ng-if="key =='saleName' ||key =='saleDate' ">{{key}}</option>
 					</select>
 				</div>
 			</div>
+
+			<!-- Columns -->
 			<div class="form-group">
 				<label for="disabledInput" class="col-sm-2 control-label">xColumn</label>
 				<div class="col-sm-6">
-					<input class="form-control" type="number" ng-model="obData.xColumn" min="0">
+					<input class="form-control" type="number" ng-model="obData.yColumn" min="0">
 				</div>
 			</div>
-			
-			<div class="form-group" ng-repeat="n in onCountChange(obData.xColumn)" >
-				<label for="disabledSelect" class="col-sm-2 control-label">xColumn {{n}}</label>
+			<div class="form-group" ng-repeat="n in obData.Cols" >
+				<label for="disabledSelect" class="col-sm-2 control-label"> {{n.index}}</label>
 				<div class="col-sm-6" >
-					<select class="form-control" >
+					<select class="form-control" ng-model="n.val">
 						<option>-- select column --</option>
 						<option ng-repeat="(key,val) in obData.dataURL[1]" value="{{key}}" ng-if="key !='saleName' && key !='saleDate' && key != 'index' ">{{key}}</option>
 					</select>
 				</div>
 			</div>
+			<!-- Lines -->
 			<div class="form-group">
 				<label for="disabledInput" class="col-sm-2 control-label">xLine</label>
 				<div class="col-sm-6">
-					<input class="form-control" type="number" ng-model="obData.xline">
+					<input class="form-control" type="number" ng-model="obData.yLine" min="0">
 				</div>
 			</div>
-			<div class="form-group" ng-repeat="n in onCountChange(obData.xline)" >
-				<label for="disabledSelect" class="col-sm-2 control-label">xLine {{n}}</label>
+			<div class="form-group" ng-repeat="n in obData.Lines" >
+				<label for="disabledSelect" class="col-sm-2 control-label"> {{n.index}}</label>
 				<div class="col-sm-6" >
-					<select class="form-control" >
+					<select class="form-control" ng-model="n.val">
 						<option>-- select line --</option>
 						<option ng-repeat="(key,val) in obData.dataURL[1]" value="{{key}}" ng-if="key !='saleName' && key !='saleDate' && key != 'index' ">{{key}}</option>
 					</select>
@@ -101,6 +103,8 @@
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
 	<script src="https://code.highcharts.com/modules/export-data.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.core.js"></script>
+	
 </body>
 
 </html>
